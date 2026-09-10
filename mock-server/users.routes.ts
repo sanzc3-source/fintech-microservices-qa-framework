@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { requireAuth } from './auth.middleware';
 
 const router = Router();
 
@@ -12,7 +13,7 @@ interface User {
 const users: User[] = [];
 let nextId = 1;
 
-// POST /api/users - Create user
+// POST /api/users - Create user (public — no auth required to register)
 router.post('/', (req, res) => {
   const { name, email, accountType } = req.body;
 
@@ -31,8 +32,8 @@ router.post('/', (req, res) => {
   res.status(201).json(newUser);
 });
 
-// GET /api/users/:id - Get user details
-router.get('/:id', (req, res) => {
+// GET /api/users/:id - Get user details (protected)
+router.get('/:id', requireAuth, (req, res) => {
   const user = users.find((u) => u.id === req.params.id);
 
   if (!user) {

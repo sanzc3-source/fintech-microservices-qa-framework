@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { createNotification } from './notifications.routes';
+import { requireAuth } from './auth.middleware';
 
 const router = Router();
 
@@ -14,8 +15,8 @@ interface Transaction {
 const transactions: Transaction[] = [];
 let nextId = 1;
 
-// POST /api/transactions - Create transaction
-router.post('/', (req, res) => {
+// POST /api/transactions - Create transaction (protected)
+router.post('/', requireAuth, (req, res) => {
   const { userId, amount, type, recipientId } = req.body;
 
   if (!userId || amount === undefined || !type || !recipientId) {
@@ -36,14 +37,13 @@ router.post('/', (req, res) => {
 
   transactions.push(newTransaction);
 
-  // Side-effect: trigger a notification, same as a real message-queue event would
   createNotification(userId, `Your ${type} of $${amount} was processed.`);
 
   res.status(201).json(newTransaction);
 });
 
-// GET /api/transactions/:userId - Get user transactions
-router.get('/:userId', (req, res) => {
+// GET /api/transactions/:userId - Get user transactions (protected)
+router.get('/:userId', requireAuth, (req, res) => {
   const userTransactions = transactions.filter((t) => t.userId === req.params.userId);
   res.status(200).json(userTransactions);
 });

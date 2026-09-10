@@ -1,4 +1,5 @@
 const API_BASE = 'http://localhost:4000';
+const API_KEY = 'test-api-key-12345';
 
 // Registration form
 document.getElementById('registration-form').addEventListener('submit', async (e) => {
@@ -45,7 +46,10 @@ document.getElementById('transaction-form').addEventListener('submit', async (e)
   try {
     const res = await fetch(`${API_BASE}/api/transactions`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': API_KEY,
+      },
       body: JSON.stringify({ userId, amount, type, recipientId }),
     });
 
