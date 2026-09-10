@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Fintech Demo</title>
+</head>
+<body>
+  <h1>User Registration</h1>
+  <form id="registration-form">
+    <input type="text" id="reg-name" placeholder="Name" required />
+    <input type="email" id="reg-email" placeholder="Email" required />
+    <select id="reg-account-type" required>
+      <option value="">Select account type</option>
+      <option value="basic">Basic</option>
+      <option value="premium">Premium</option>
+    </select>
+    <button type="submit">Register</button>
+  </form>
+  <p id="registration-result"></p>
+
+  <h1>Create Transaction</h1>
+  <form id="transaction-form">
+    <input type="text" id="txn-user-id" placeholder="User ID" required />
+    <input type="number" id="txn-amount" placeholder="Amount" step="0.01" required />
+    <select id="txn-type" required>
+      <option value="">Select type</option>
+      <option value="transfer">Transfer</option>
+      <option value="deposit">Deposit</option>
+      <option value="withdrawal">Withdrawal</option>
+    </select>
+    <input type="text" id="txn-recipient-id" placeholder="Recipient ID" required />
+    <button type="submit">Create Transaction</button>
+  </form>
+  <p id="transaction-result"></p>
+
+  <script src="app.js"></script>
+</body>
+</html>
