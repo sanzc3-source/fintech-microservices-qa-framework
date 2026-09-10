@@ -4,9 +4,9 @@ import path from 'path';
 import userRoutes from './users.routes';
 import transactionRoutes from './transactions.routes';
 import notificationRoutes from './notifications.routes';
+import { config } from '../src/config/env';
 
 const app = express();
-const PORT = process.env.PORT || 4000;
 
 app.use(cors());
 app.use(express.json());
@@ -22,6 +22,6 @@ app.get('/health', (req, res) => {
 // Serve the minimal frontend (index.html, app.js)
 app.use(express.static(path.join(__dirname)));
 
-app.listen(PORT, () => {
-  console.log(`Mock server (Gateway) running on http://localhost:${PORT}`);
+app.listen(config.port, () => {
+  console.log(`Mock server (Gateway) running on ${config.baseURL}`);
 });
