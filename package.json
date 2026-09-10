@@ -1,0 +1,24 @@
+{
+  "name": "fintech-microservices-qa-framework",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sanzc3-source/fintech-microservices-qa-framework.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/sanzc3-source/fintech-microservices-qa-framework/issues"
+  },
+  "homepage": "https://github.com/sanzc3-source/fintech-microservices-qa-framework#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.63.0",
+    "@types/node": "^22.20.2",
+    "typescript": "^7.0.2"
+  }
+}
