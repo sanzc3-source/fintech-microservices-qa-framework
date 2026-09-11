@@ -1,42 +1,35 @@
 import { test, expect } from '@playwright/test';
 import { TransactionClient } from '../../src/api/TransactionClient';
-import { UserClient } from '../../src/api/UserClient';
 import { buildTransaction } from '../../src/factories/transactionFactory';
-import { buildUser } from '../../src/factories/userFactory';
+import { createTestUser } from '../../src/utils/helpers';
+import { assertStatusCode, assertHasValidId, assertErrorMessage } from '../../src/utils/customAssertions';
 
 test.describe('Transaction Service API', () => {
   // Happy path: creating a transaction with valid auth should succeed
   test('creates a transaction successfully', async ({ request }) => {
-    const userClient = new UserClient(request);
     const txnClient = new TransactionClient(request);
-
-    // Create a real user first so the transaction has a valid userId
-    const userResponse = await userClient.createUser(buildUser());
-    const user = await userResponse.json();
+    const user = await createTestUser(request);
 
     const payload = buildTransaction({ userId: user.id });
     const response = await txnClient.createTransaction(payload);
 
-    expect(response.status()).toBe(201);
+    await assertStatusCode(response, 201);
     const body = await response.json();
     expect(body.userId).toBe(user.id);
     expect(body.amount).toBe(payload.amount);
-    expect(body.id).toBeTruthy();
+    assertHasValidId(body);
   });
 
   // Happy path: fetching transactions for a user should return an array
   test('gets transactions for a user', async ({ request }) => {
-    const userClient = new UserClient(request);
     const txnClient = new TransactionClient(request);
-
-    const userResponse = await userClient.createUser(buildUser());
-    const user = await userResponse.json();
+    const user = await createTestUser(request);
 
     await txnClient.createTransaction(buildTransaction({ userId: user.id }));
 
     const getResponse = await txnClient.getTransactions(user.id);
 
-    expect(getResponse.status()).toBe(200);
+    await assertStatusCode(getResponse, 200);
     const body = await getResponse.json();
     expect(Array.isArray(body)).toBe(true);
     expect(body.length).toBeGreaterThan(0);
@@ -49,9 +42,8 @@ test.describe('Transaction Service API', () => {
 
     const response = await txnClient.createTransaction(incompletePayload as any);
 
-    expect(response.status()).toBe(400);
-    const body = await response.json();
-    expect(body.error).toContain('required');
+    await assertStatusCode(response, 400);
+    await assertErrorMessage(response, 'required');
   });
 
   // Validation: a zero or negative amount should be rejected
@@ -61,9 +53,8 @@ test.describe('Transaction Service API', () => {
 
     const response = await txnClient.createTransaction(invalidPayload);
 
-    expect(response.status()).toBe(400);
-    const body = await response.json();
-    expect(body.error).toContain('positive number');
+    await assertStatusCode(response, 400);
+    await assertErrorMessage(response, 'positive number');
   });
 
   // Auth: no API key at all should return 401
@@ -73,9 +64,8 @@ test.describe('Transaction Service API', () => {
 
     const response = await txnClient.createTransactionNoAuth(payload);
 
-    expect(response.status()).toBe(401);
-    const body = await response.json();
-    expect(body.error).toBe('Missing API key');
+    await assertStatusCode(response, 401);
+    await assertErrorMessage(response, 'Missing API key');
   });
 
   // Auth: a wrong API key should return 403
@@ -85,18 +75,14 @@ test.describe('Transaction Service API', () => {
 
     const response = await txnClient.createTransactionBadAuth(payload);
 
-    expect(response.status()).toBe(403);
-    const body = await response.json();
-    expect(body.error).toBe('Invalid API key');
+    await assertStatusCode(response, 403);
+    await assertErrorMessage(response, 'Invalid API key');
   });
 
   // Side-effect: creating a transaction should trigger a notification
   test('creating a transaction triggers a notification', async ({ request }) => {
-    const userClient = new UserClient(request);
     const txnClient = new TransactionClient(request);
-
-    const userResponse = await userClient.createUser(buildUser());
-    const user = await userResponse.json();
+    const user = await createTestUser(request);
 
     await txnClient.createTransaction(buildTransaction({ userId: user.id, type: 'deposit', amount: 42 }));
 
