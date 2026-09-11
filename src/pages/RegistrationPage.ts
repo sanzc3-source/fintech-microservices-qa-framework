@@ -1,4 +1,4 @@
-import { Page, Locator } from '@playwright/test';
+import { Page, Locator, expect } from '@playwright/test';
 
 // Wraps all interactions with the registration form
 export class RegistrationPage {
@@ -18,12 +18,10 @@ export class RegistrationPage {
     this.resultText = page.locator('#registration-result');
   }
 
-  // Navigate to the app's home page, where both forms live
   async goto() {
     await this.page.goto('http://localhost:4000');
   }
 
-  // Fill out and submit the registration form with the given values
   async register(name: string, email: string, accountType: string) {
     await this.nameInput.fill(name);
     await this.emailInput.fill(email);
@@ -31,8 +29,9 @@ export class RegistrationPage {
     await this.submitButton.click();
   }
 
-  // Read whatever success/error message the form displayed after submit
-  async getResultText(): Promise<string> {
-    return this.resultText.textContent().then((text) => text ?? '');
+  // Waits (with auto-retry) until the result text contains the expected substring,
+  // instead of reading it once immediately - avoids a race with the async fetch call
+  async expectResultToContain(expectedText: string) {
+    await expect(this.resultText).toContainText(expectedText);
   }
 }

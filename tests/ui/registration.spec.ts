@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test } from '@playwright/test';
 import { RegistrationPage } from '../../src/pages/RegistrationPage';
 
 test.describe('User Registration UI', () => {
@@ -10,7 +10,6 @@ test.describe('User Registration UI', () => {
     const uniqueEmail = `ui-test-${Date.now()}@example.com`;
     await registrationPage.register('UI Test User', uniqueEmail, 'premium');
 
-    const result = await registrationPage.getResultText();
-    expect(result).toContain('User created!');
+    await registrationPage.expectResultToContain('User created!');
   });
 });

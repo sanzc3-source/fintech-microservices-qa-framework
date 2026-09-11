@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test } from '@playwright/test';
 import { TransactionPage } from '../../src/pages/TransactionPage';
 
 test.describe('Create Transaction UI', () => {
@@ -9,7 +9,6 @@ test.describe('Create Transaction UI', () => {
 
     await transactionPage.createTransaction('1', '150.00', 'deposit', '999');
 
-    const result = await transactionPage.getResultText();
-    expect(result).toContain('Transaction created!');
+    await transactionPage.expectResultToContain('Transaction created!');
   });
 });

@@ -1,4 +1,4 @@
-import { Page, Locator } from '@playwright/test';
+import { Page, Locator, expect } from '@playwright/test';
 
 // Wraps all interactions with the create-transaction form
 export class TransactionPage {
@@ -8,7 +8,7 @@ export class TransactionPage {
   private typeSelect: Locator;
   private recipientIdInput: Locator;
   private submitButton: Locator;
-  private resultText: Locator;
+  resultText: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -20,12 +20,10 @@ export class TransactionPage {
     this.resultText = page.locator('#transaction-result');
   }
 
-  // Navigate to the app's home page, where both forms live
   async goto() {
     await this.page.goto('http://localhost:4000');
   }
 
-  // Fill out and submit the transaction form with the given values
   async createTransaction(userId: string, amount: string, type: string, recipientId: string) {
     await this.userIdInput.fill(userId);
     await this.amountInput.fill(amount);
@@ -34,8 +32,9 @@ export class TransactionPage {
     await this.submitButton.click();
   }
 
-  // Read whatever success/error message the form displayed after submit
-  async getResultText(): Promise<string> {
-    return this.resultText.textContent().then((text) => text ?? '');
+  // Waits (with auto-retry) until the result text contains the expected substring,
+  // instead of reading it once immediately - avoids a race with the async fetch call
+  async expectResultToContain(expectedText: string) {
+    await expect(this.resultText).toContainText(expectedText);
   }
 }
