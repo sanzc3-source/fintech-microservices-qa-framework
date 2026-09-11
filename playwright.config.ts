@@ -21,20 +21,26 @@ export default defineConfig({
     trace: 'on-first-retry',
   },
 
-  /* Configure projects for major browsers */
+  /* Separate API tests (run once, no browser needed) from UI tests (run per-browser) */
   projects: [
     {
+      // API tests don't use a real browser - running them 3x per browser was wasted work
+      name: 'api',
+      testDir: './tests/api',
+    },
+    {
       name: 'chromium',
+      testDir: './tests/ui',
       use: { ...devices['Desktop Chrome'] },
     },
-
     {
       name: 'firefox',
+      testDir: './tests/ui',
       use: { ...devices['Desktop Firefox'] },
     },
-
     {
       name: 'webkit',
+      testDir: './tests/ui',
       use: { ...devices['Desktop Safari'] },
     },
   ],
