@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { UserClient } from '../../src/api/UserClient';
 import { buildUser } from '../../src/factories/userFactory';
+import { assertStatusCode, assertHasValidId, assertErrorMessage } from '../../src/utils/customAssertions';
 
 test.describe('User Service API', () => {
   // Happy path: creating a user should succeed and return the created data
@@ -10,11 +11,11 @@ test.describe('User Service API', () => {
 
     const response = await client.createUser(payload);
 
-    expect(response.status()).toBe(201);
+    await assertStatusCode(response, 201);
     const body = await response.json();
     expect(body.name).toBe(payload.name);
     expect(body.email).toBe(payload.email);
-    expect(body.id).toBeTruthy();
+    assertHasValidId(body);
   });
 
   // Validation: missing required fields should be rejected
@@ -24,9 +25,8 @@ test.describe('User Service API', () => {
 
     const response = await client.createUser(incompletePayload as any);
 
-    expect(response.status()).toBe(400);
-    const body = await response.json();
-    expect(body.error).toContain('required');
+    await assertStatusCode(response, 400);
+    await assertErrorMessage(response, 'required');
   });
 
   // Happy path: fetching an existing user with a valid API key should succeed
@@ -39,7 +39,7 @@ test.describe('User Service API', () => {
 
     const getResponse = await client.getUser(created.id);
 
-    expect(getResponse.status()).toBe(200);
+    await assertStatusCode(getResponse, 200);
     const body = await getResponse.json();
     expect(body.id).toBe(created.id);
     expect(body.email).toBe(payload.email);
@@ -51,6 +51,6 @@ test.describe('User Service API', () => {
 
     const response = await client.getUser('nonexistent-id-999');
 
-    expect(response.status()).toBe(404);
+    await assertStatusCode(response, 404);
   });
 });
