@@ -19,6 +19,8 @@ export default defineConfig({
   use: {
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
+    /* Take a screenshot automatically whenever a UI test fails */
+    screenshot: 'only-on-failure',
   },
 
   /* Separate API tests (run once, no browser needed) from UI tests (run per-browser) */
