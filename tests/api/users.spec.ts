@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test';
 import { UserClient } from '../../src/api/UserClient';
 import { buildUser } from '../../src/factories/userFactory';
 import { assertStatusCode, assertHasValidId, assertErrorMessage } from '../../src/utils/customAssertions';
+import { logApiResponse } from '../../src/utils/apiLogger';
 
 test.describe('User Service API', () => {
   // Happy path: creating a user should succeed and return the created data
@@ -10,6 +11,7 @@ test.describe('User Service API', () => {
     const payload = buildUser();
 
     const response = await client.createUser(payload);
+    await logApiResponse('POST', '/api/users', response);
 
     await assertStatusCode(response, 201);
     const body = await response.json();
@@ -24,6 +26,7 @@ test.describe('User Service API', () => {
     const incompletePayload = buildUser({ name: undefined });
 
     const response = await client.createUser(incompletePayload as any);
+    await logApiResponse('POST', '/api/users', response);
 
     await assertStatusCode(response, 400);
     await assertErrorMessage(response, 'required');
@@ -38,6 +41,7 @@ test.describe('User Service API', () => {
     const created = await createResponse.json();
 
     const getResponse = await client.getUser(created.id);
+    await logApiResponse('GET', `/api/users/${created.id}`, getResponse);
 
     await assertStatusCode(getResponse, 200);
     const body = await getResponse.json();
@@ -50,6 +54,7 @@ test.describe('User Service API', () => {
     const client = new UserClient(request);
 
     const response = await client.getUser('nonexistent-id-999');
+    await logApiResponse('GET', '/api/users/nonexistent-id-999', response);
 
     await assertStatusCode(response, 404);
   });
