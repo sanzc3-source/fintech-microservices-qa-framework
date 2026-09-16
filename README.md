@@ -187,3 +187,27 @@ Authentication uses a simple API-key scheme. Registration is intentionally left 
 ## Continuous integration
 
 Every push runs the full Playwright suite on GitHub Actions (see the badge above). The workflow uses Playwright's `webServer` configuration to start the mock server in CI, so the same tests that pass locally pass in the pipeline.
+
+### Screenshots on failure
+
+UI tests capture a screenshot automatically when they fail, configured with screenshot only-on-failure. When an assertion fails, the run reports the mismatch and saves an image of the browser at the moment of failure:
+
+    1) [chromium] > registration.spec.ts > registers a new user successfully
+
+       Error: expect(locator).toContainText(expected) failed
+
+       Locator:            locator('#registration-result')
+       Expected substring: "THIS WILL FAIL ON PURPOSE"
+       Received string:    "User created! ID: 1"
+
+       attachment #1: screenshot (image/png)
+       test-results/registration-.../test-failed-1.png
+
+### API response logging
+
+Every logged API call is written to test-results/api-responses.log, one JSON line per request:
+
+    {"method":"POST","url":"/api/users","status":400,"body":{"error":"name, email, and accountType are required"}}
+    {"method":"GET","url":"/api/users/4","status":200,"body":{"id":"4","name":"Test User","accountType":"premium"}}
+    {"method":"POST","url":"/api/transactions","status":201,"body":{"id":"1","amount":100.5,"type":"transfer"}}
+    {"method":"GET","url":"/api/users/nonexistent-id-999","status":404,"body":{"error":"User not found"}}
